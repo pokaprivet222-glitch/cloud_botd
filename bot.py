@@ -24,7 +24,7 @@ PRODUCTS = {
         "size": "5 ГБ",
         "emoji": "🎉",
         "payment_link": "https://t.me/+e0coxbzyAWFjYzk5",
-        "archive_link": "https://example.com/archive_5gb.zip"  # ЗАМЕНИ НА РЕАЛЬНУЮ ССЫЛКУ
+        "archive_link": "https://example.com/archive_5gb.zip"
     },
     "10gb": {
         "id": "10gb",
@@ -33,7 +33,7 @@ PRODUCTS = {
         "size": "10 ГБ",
         "emoji": "🎉",
         "payment_link": "https://t.me/+rpeY-cXDOpg5OTMx",
-        "archive_link": "https://example.com/archive_10gb.zip"  # ЗАМЕНИ НА РЕАЛЬНУЮ ССЫЛКУ
+        "archive_link": "https://example.com/archive_10gb.zip"
     },
     "20gb": {
         "id": "20gb",
@@ -42,7 +42,7 @@ PRODUCTS = {
         "size": "20 ГБ",
         "emoji": "🎉",
         "payment_link": "https://t.me/+onb_d-mHWks4YjQx",
-        "archive_link": "https://example.com/archive_20gb.zip"  # ЗАМЕНИ НА РЕАЛЬНУЮ ССЫЛКУ
+        "archive_link": "https://example.com/archive_20gb.zip"
     },
 }
 
@@ -61,7 +61,6 @@ dp = Dispatcher(storage=storage)
 
 # ==================== КЛАВИАТУРЫ ====================
 def get_main_menu() -> InlineKeyboardMarkup:
-    """Главное меню со всеми разделами"""
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text="📦 КАТАЛОГ ПАКЕТОВ", callback_data="catalog"))
     builder.row(InlineKeyboardButton(text="ℹ️ ОПИСАНИЕ И ИНФО", callback_data="info"))
@@ -70,7 +69,6 @@ def get_main_menu() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def get_catalog_menu() -> InlineKeyboardMarkup:
-    """Каталог с товарами"""
     builder = InlineKeyboardBuilder()
     for product_id, product in PRODUCTS.items():
         builder.row(
@@ -83,7 +81,6 @@ def get_catalog_menu() -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def get_payment_keyboard(product_id: str) -> InlineKeyboardMarkup:
-    """Клавиатура с ссылкой на оплату (автоматическая выдача)"""
     builder = InlineKeyboardBuilder()
     product = PRODUCTS[product_id]
     builder.row(
@@ -95,14 +92,12 @@ def get_payment_keyboard(product_id: str) -> InlineKeyboardMarkup:
     return builder.as_markup()
 
 def get_support_keyboard() -> InlineKeyboardMarkup:
-    """Клавиатура для поддержки"""
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text="✍️ НАПИСАТЬ ТИКЕТ", callback_data="write_ticket"))
     builder.row(InlineKeyboardButton(text="🏠 ГЛАВНОЕ МЕНЮ", callback_data="back_to_main"))
     return builder.as_markup()
 
 def get_back_button() -> InlineKeyboardMarkup:
-    """Кнопка назад"""
     builder = InlineKeyboardBuilder()
     builder.row(InlineKeyboardButton(text="🔙 НАЗАД", callback_data="back_to_main"))
     return builder.as_markup()
@@ -110,7 +105,7 @@ def get_back_button() -> InlineKeyboardMarkup:
 # ==================== ОБРАБОТЧИКИ КОМАНД ====================
 @dp.message(Command("start"))
 async def cmd_start(message: Message):
-    """Приветственное сообщение с кнопкой в каталог"""
+    """Приветственное сообщение с кнопками"""
     welcome_text = (
         "🌟 ДОБРО ПОЖАЛОВАТЬ В CLOUD STORE!\n"
         "━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -120,19 +115,25 @@ async def cmd_start(message: Message):
         "• Разовая оплата — доступ навсегда, без скрытых списаний.\n"
         "• Мгновенная выдача — ссылка приходит сразу после оплаты.\n"
         "• Круглосуточная поддержка — поможем в любой ситуации.\n\n"
-        "👇 Нажми на кнопку ниже, чтобы открыть каталог:"
+        "👇 Выбери нужный раздел:"
     )
     
     builder = InlineKeyboardBuilder()
     builder.row(
         InlineKeyboardButton(text="📦 ОТКРЫТЬ КАТАЛОГ", callback_data="catalog")
     )
+    builder.row(
+        InlineKeyboardButton(text="ℹ️ ОПИСАНИЕ И ИНФО", callback_data="info"),
+        InlineKeyboardButton(text="🆘 ТЕХПОДДЕРЖКА", callback_data="support")
+    )
+    builder.row(
+        InlineKeyboardButton(text="🛒 МОИ ПОКУПКИ", callback_data="my_purchases")
+    )
     
     await message.answer(welcome_text, reply_markup=builder.as_markup())
 
 @dp.message(Command("menu"))
 async def cmd_menu(message: Message):
-    """Возврат в главное меню"""
     await message.answer(
         "🏠 ГЛАВНОЕ МЕНЮ CLOUD STORE\n\n"
         "Ты вернулся на главную. Выбери интересующий раздел ниже:",
@@ -142,7 +143,6 @@ async def cmd_menu(message: Message):
 # ==================== ОБРАБОТЧИКИ КНОПОК ====================
 @dp.callback_query(F.data == "back_to_main")
 async def back_to_main(callback: CallbackQuery):
-    """Возврат в главное меню"""
     await callback.message.edit_text(
         "🏠 ГЛАВНОЕ МЕНЮ CLOUD STORE\n\n"
         "Ты вернулся на главную. Выбери интересующий раздел ниже:",
@@ -152,7 +152,6 @@ async def back_to_main(callback: CallbackQuery):
 
 @dp.callback_query(F.data == "back_to_catalog")
 async def back_to_catalog(callback: CallbackQuery):
-    """Возврат в каталог"""
     await callback.message.edit_text(
         "📦 КАТАЛОГ ПАКЕТОВ\n\n"
         "Выбери подходящий тариф и нажми на кнопку для покупки:",
@@ -162,7 +161,6 @@ async def back_to_catalog(callback: CallbackQuery):
 
 @dp.callback_query(F.data == "catalog")
 async def show_catalog(callback: CallbackQuery):
-    """Показать каталог"""
     await callback.message.edit_text(
         "📦 КАТАЛОГ ПАКЕТОВ\n\n"
         "Выбери подходящий тариф и нажми на кнопку для покупки:",
@@ -172,7 +170,6 @@ async def show_catalog(callback: CallbackQuery):
 
 @dp.callback_query(F.data == "info")
 async def show_info(callback: CallbackQuery):
-    """Информация о сервисе"""
     info_text = (
         "📦 ПОДРОБНАЯ ИНФОРМАЦИЯ\n"
         "━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -193,7 +190,6 @@ async def show_info(callback: CallbackQuery):
 
 @dp.callback_query(F.data == "support")
 async def show_support(callback: CallbackQuery):
-    """Раздел поддержки"""
     support_text = (
         "🆘 ТЕХПОДДЕРЖКА CLOUD STORE\n\n"
         "Возникли трудности со скачиванием, оплатой или есть предложение?\n\n"
@@ -204,7 +200,6 @@ async def show_support(callback: CallbackQuery):
 
 @dp.callback_query(F.data == "write_ticket")
 async def write_ticket(callback: CallbackQuery, state: FSMContext):
-    """Написать тикет"""
     await callback.message.edit_text(
         "✍️ НАПИСАТЬ ТИКЕТ\n\n"
         "Опиши свою проблему или вопрос максимально подробно.\n"
@@ -216,7 +211,6 @@ async def write_ticket(callback: CallbackQuery, state: FSMContext):
 
 @dp.message(SupportStates.waiting_for_ticket)
 async def process_ticket(message: Message, state: FSMContext):
-    """Обработка тикета"""
     ticket_text = (
         f"📩 НОВЫЙ ТИКЕТ!\n\n"
         f"👤 От: {message.from_user.full_name} (@{message.from_user.username})\n"
@@ -232,7 +226,6 @@ async def process_ticket(message: Message, state: FSMContext):
 
 @dp.callback_query(F.data == "my_purchases")
 async def show_my_purchases(callback: CallbackQuery):
-    """История покупок"""
     user_id = callback.from_user.id
     purchases = user_purchases.get(user_id, [])
     
@@ -261,7 +254,6 @@ async def show_my_purchases(callback: CallbackQuery):
 # ==================== ПОКУПКА ТОВАРА ====================
 @dp.callback_query(F.data.startswith("buy_"))
 async def select_product(callback: CallbackQuery):
-    """Выбор товара - показываем кнопку оплаты"""
     product_id = callback.data.split("_")[1]
     product = PRODUCTS.get(product_id)
     
@@ -285,46 +277,9 @@ async def select_product(callback: CallbackQuery):
     )
     await callback.answer()
 
-@dp.message(F.text == "/confirm")
-async def confirm_payment_manual(message: Message):
-    """Ручное подтверждение оплаты (если автоматика не сработала)"""
-    await message.answer(
-        "❌ Автоматическая выдача ссылки не сработала.\n"
-        "Пожалуйста, свяжитесь с поддержкой: /support"
-    )
-
-# ==================== ЭМУЛЯЦИЯ АВТОМАТИЧЕСКОЙ ВЫДАЧИ ====================
-# ВНИМАНИЕ! В реальном боте нужно настроить вебхук или отслеживать вступления.
-# Сейчас для демонстрации используется команда /get_archive
-
-@dp.message(Command("get_archive"))
-async def manual_archive(message: Message):
-    """Тестовая команда для получения архива (удали после настройки автовыдачи)"""
-    user_id = message.from_user.id
-    purchases = user_purchases.get(user_id, [])
-    
-    if not purchases:
-        await message.answer("❌ У вас нет активных покупок.")
-        return
-    
-    # Берем последнюю покупку
-    last_purchase = purchases[-1]
-    archive_link = last_purchase.get("archive_link")
-    
-    if archive_link:
-        await message.answer(
-            f"✅ ВАШ АРХИВ:\n\n"
-            f"🔗 {archive_link}\n\n"
-            f"Ссылка сохранена в разделе «МОИ ПОКУПКИ»."
-        )
-    else:
-        await message.answer("❌ Ссылка на архив не найдена.")
-
 # ==================== АВТОВЫДАЧА (СИМУЛЯЦИЯ) ====================
-# Этот блок для демонстрации. В реальном боте нужно подключить вебхук.
 @dp.callback_query(F.data.startswith("auto_confirm_"))
 async def auto_confirm_payment(callback: CallbackQuery):
-    """Автоматическое подтверждение оплаты (симуляция)"""
     product_id = callback.data.split("_")[2]
     product = PRODUCTS.get(product_id)
     user_id = callback.from_user.id
@@ -333,7 +288,6 @@ async def auto_confirm_payment(callback: CallbackQuery):
         await callback.answer("Товар не найден!")
         return
     
-    # Сохраняем покупку
     purchase = {
         "product_id": product_id,
         "name": product["name"],
@@ -348,7 +302,6 @@ async def auto_confirm_payment(callback: CallbackQuery):
         user_purchases[user_id] = []
     user_purchases[user_id].append(purchase)
     
-    # Отправляем ссылку на архив
     await callback.message.edit_text(
         f"✅ ОПЛАТА ПРОШЛА УСПЕШНО!\n"
         f"━━━━━━━━━━━━━━━━━━━━━━━━━━\n\n"
@@ -360,7 +313,6 @@ async def auto_confirm_payment(callback: CallbackQuery):
         reply_markup=get_main_menu()
     )
     
-    # Уведомление админу
     try:
         await bot.send_message(
             ADMIN_ID,
